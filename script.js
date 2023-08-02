@@ -16,8 +16,6 @@ const createCalendar = ({ locate, year }) => {
     dateAllDay.getDate()
   );
 
-  console.log('dateAllDayClear', dateAllDayClear);
-
   const calendar = monts.map((monthKey) => {
     const monthName = intl.format(new Date(year, monthKey));
 
@@ -44,22 +42,24 @@ const createCalendar = ({ locate, year }) => {
         startsOn + 1
       }'`;
 
-      const now = new Date();
-      const nowClear = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate()
-      );
-
       const renderedDays = days
         .map((day, index) => {
-          const dateCalendar = new Date(year, monthKey, day + 1);
+          day = day + 1;
+          const dateCalendar = new Date(year, monthKey, day);
           const diff = dateCalendar - dateAllDayClear;
           const diffDys = diff / (1000 * 60 * 60 * 24);
-          const moduleOf3 = diffDys % 3;
-          const turn = moduleOf3 < 0 ? (moduleOf3 === -1 ? 2 : moduleOf3 === -2 ? 1 : moduleOf3) : moduleOf3;
+          const moduleOf3 = Math.round(diffDys % 3);
+          const turn =
+            moduleOf3 < 0
+              ? moduleOf3 === -1
+                ? 2
+                : moduleOf3 === -2
+                ? 1
+                : moduleOf3
+              : moduleOf3;
+          const selected = turns[turn];
           return `<li ${index === 0 ? firstDayAttribute : ''}>${
-            (day + 1) + turns[turn]
+            day + (selected ? selected : '')
           }</li>`;
         })
         .join('');
@@ -77,14 +77,6 @@ const createCalendar = ({ locate, year }) => {
   el.scrollTo({ top: scrollToMothCurrent, behavior: 'smooth' });
 };
 
-let yearLocalStorage = localStorage.getItem('year');
-console.log('yearLocalStorage', yearLocalStorage);
-
-if (!yearLocalStorage) {
-  localStorage.setItem('year', new Date().getFullYear());
-  yearLocalStorage = localStorage.getItem('year');
-  console.log('yearLocalStorage', yearLocalStorage);
-}
 //let year = parseInt(yearLocalStorage);
 let year = new Date().getFullYear();
 const locate = 'es';
