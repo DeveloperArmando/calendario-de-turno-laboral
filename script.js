@@ -9,6 +9,15 @@ const createCalendar = ({ locate, year }) => {
   const monts = [...Array(12).keys()];
   const intl = new Intl.DateTimeFormat(locate, { month: 'long' });
 
+  const dateAllDay = new Date(2023, 7, 2);
+  const dateAllDayClear = new Date(
+    dateAllDay.getFullYear(),
+    dateAllDay.getMonth(),
+    dateAllDay.getDate()
+  );
+
+  console.log('dateAllDayClear', dateAllDayClear);
+
   const calendar = monts.map((monthKey) => {
     const monthName = intl.format(new Date(year, monthKey));
 
@@ -24,6 +33,8 @@ const createCalendar = ({ locate, year }) => {
       monthKey,
     };
   });
+
+  const turns = ['🌞', '🌃', '🌄'];
 
   const html = calendar
     .map(({ monthName, daysOfMonth, startsOn, monthKey }) => {
@@ -43,12 +54,13 @@ const createCalendar = ({ locate, year }) => {
       const renderedDays = days
         .map((day, index) => {
           const dateCalendar = new Date(year, monthKey, day + 1);
-
-          return `<li ${index === 0 ? firstDayAttribute : ''} ${
-            dateCalendar.getTime() === nowClear.getTime()
-              ? 'class="velada"'
-              : ''
-          }>${day + 1 + '🌞'}</li>`;
+          const diff = dateCalendar - dateAllDayClear;
+          const diffDys = diff / (1000 * 60 * 60 * 24);
+          const moduleOf3 = diffDys % 3;
+          const turn = moduleOf3 < 0 ? (moduleOf3 === -1 ? 2 : moduleOf3 === -2 ? 1 : moduleOf3) : moduleOf3;
+          return `<li ${index === 0 ? firstDayAttribute : ''}>${
+            (day + 1) + turns[turn]
+          }</li>`;
         })
         .join('');
       const renderedWeekDays = weeksDaysNames
@@ -75,7 +87,7 @@ if (!yearLocalStorage) {
 }
 //let year = parseInt(yearLocalStorage);
 let year = new Date().getFullYear();
-const locate = 'ja';
+const locate = 'es';
 
 createCalendar({ locate, year });
 

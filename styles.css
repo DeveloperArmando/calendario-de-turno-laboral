@@ -60,7 +60,7 @@ button {
   background: #09f;
   border-radius: 500px;
   border: 0;
-  top: 65px;
+  top: 15px;
   color: #fff;
   cursor: pointer;
   height: 50px;
@@ -72,10 +72,6 @@ button {
 }
 
 #before {
-    right: 0;
-    left: 32px;
-  }
-
-.velada {
-  background-color: #27628a;
+  right: 0;
+  left: 32px;
 }
