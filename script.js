@@ -66,15 +66,14 @@ class Calendar {
     
     const classes = [
       turn,
-      isFirstDay ? 'first-day' : '',
-      isToday ? 'today' : ''
+      isFirstDay ? 'first-day' : ''
     ].filter(Boolean);
 
     const style = isFirstDay ? `style="--first-day-start: ${startsOn + 1}"` : '';
     
     return `
       <li class="${classes.join(' ')}" ${style}>
-        <span>${day}</span>
+        <span class=${isToday ? 'today' : ''}>${day}</span>
       </li>
     `;
   }
