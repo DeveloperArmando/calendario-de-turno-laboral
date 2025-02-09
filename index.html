@@ -3,20 +3,19 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sargento matute</title>
+    <title>Turno</title>
     <link rel="stylesheet" href="styles.css" />
     <link
       rel="icon"
-      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👮‍♂️</text></svg>"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👮‍♂️</text></svg>"
     />
   </head>
   <body>
-    <!-- <button type="button">Sumar</button> -->
     <section>
-        <div></div>
-        <button id='next'>></button>
-        <button id='before'><</button>
+      <div aria-label="Calendario de turnos"></div>
+      <button id="before" aria-label="Mes anterior">&#8249;</button>
+      <button id="next" aria-label="Mes siguiente">&#8250;</button>
     </section>
-    <script src="script.js"></script>
+    <script src="script.js" defer></script>
   </body>
 </html>
