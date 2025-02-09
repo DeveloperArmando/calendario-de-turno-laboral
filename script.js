@@ -6,8 +6,8 @@ const createCalendar = ({ locate, year }) => {
     intlWeekDay.format(new Date(2023, 9, weekDayKey + 1))
   );
 
-  const monts = [...Array(12).keys()];
-  const intl = new Intl.DateTimeFormat(locate, { month: 'long' });
+  const months = [...Array(12).keys()];
+  const intlMonths = new Intl.DateTimeFormat(locate, { month: 'long' });
 
   const dateAllDay = new Date(2023, 7, 2);
   const dateAllDayClear = new Date(
@@ -16,8 +16,8 @@ const createCalendar = ({ locate, year }) => {
     dateAllDay.getDate()
   );
 
-  const calendar = monts.map((monthKey) => {
-    const monthName = intl.format(new Date(year, monthKey));
+  const calendar = months.map((monthKey) => {
+    const monthName = intlMonths.format(new Date(year, monthKey));
 
     const nextMonthIndex = monthKey + 1;
     const daysOfMonth = new Date(year, nextMonthIndex, 0).getDate();
@@ -32,7 +32,7 @@ const createCalendar = ({ locate, year }) => {
     };
   });
 
-  const turns = ['🌞', '🌃', '🌄'];
+  const turnClass = ['entra', 'sale', 'franco'];
 
   const html = calendar
     .map(({ monthName, daysOfMonth, startsOn, monthKey }) => {
@@ -57,10 +57,18 @@ const createCalendar = ({ locate, year }) => {
                 ? 1
                 : moduleOf3
               : moduleOf3;
-          const selected = turns[turn];
-          return `<li ${index === 0 ? firstDayAttribute : ''}>${
-            day + (selected ? selected : '')
-          }</li>`;
+          const selected = turnClass[turn];
+          const isToday = new Date().toDateString() === dateCalendar.toDateString();
+          const dayAttribute = `class='${selected}'`;
+          const firstDayAttribute = `class='first-day ${selected}' style='--first-day-start: ${
+            startsOn + 1
+          }'`;
+          
+          return `<li ${index === 0 ? firstDayAttribute : dayAttribute}>
+            <span class='${isToday?'today':''}'>
+              ${day}
+            </span>
+          </li>`;
         })
         .join('');
       const renderedWeekDays = weeksDaysNames
@@ -79,7 +87,7 @@ const createCalendar = ({ locate, year }) => {
 
 //let year = parseInt(yearLocalStorage);
 let year = new Date().getFullYear();
-const locate = 'es';
+const locate = navigator.language;
 
 createCalendar({ locate, year });
 
@@ -92,8 +100,3 @@ document.getElementById('before').addEventListener('click', () => {
   year = year - 1;
   createCalendar({ locate, year });
 });
-
-// document.querySelector('button').addEventListener('click', () => {
-//   year = year + 1;
-//   createCalendar({ locate, year });
-// });
