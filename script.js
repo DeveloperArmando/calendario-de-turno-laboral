@@ -2,9 +2,9 @@
 const DAYS_IN_WEEK = 7;
 const MONTHS_IN_YEAR = 12;
 const TURNS = {
-  ENTRADA: 'entra',
   SALIDA: 'sale',
-  FRANCO: 'franco'
+  FRANCO: 'franco',
+  ENTRADA: 'entra',
 };
 
 class Calendar {
