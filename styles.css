@@ -5,7 +5,7 @@
   --bg-for-entra: #1a1a1a;
   --bg-for-sale: #666;
   --bg-for-franco: #999;
-  --highlight-bg: #FF4500 ;
+  --highlight-bg: #ff4500;
   --text-color: #6bf0ff;
   --text-for-highlight-bg: #6bf0ff;
   --border-color: #9e9e9e;
@@ -104,14 +104,62 @@ button {
 
 .entra {
   background: var(--bg-for-entra);
+  position: relative;
+}
+
+.entra:active::after {
+  content: 'Entras';
+  background-color: var(--highlight-bg);
+  color: var(--text-for-highlight-bg);
+  padding: 4px 8px;
+  border-radius: 4px;
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  z-index: 10;
+  font-size: 12px;
 }
 
 .sale {
   background: var(--bg-for-sale);
+  position: relative;
+}
+
+.sale:active::after {
+  content: 'Sales';
+  background-color: var(--highlight-bg);
+  color: var(--text-for-highlight-bg);
+  padding: 4px 8px;
+  border-radius: 4px;
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  z-index: 10;
+  font-size: 12px;
 }
 
 .franco {
   background: var(--bg-for-franco);
+  position: relative;
+}
+
+.franco:active::after {
+  content: 'Franco';
+  background-color: var(--highlight-bg);
+  color: var(--text-for-highlight-bg);
+  padding: 4px 8px;
+  border-radius: 4px;
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  z-index: 10;
+  font-size: 12px;
 }
 
 .today {
