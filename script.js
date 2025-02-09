@@ -1,102 +1,128 @@
-const createCalendar = ({ locate, year }) => {
-  const weekDays = [...Array(7).keys()];
-  const intlWeekDay = new Intl.DateTimeFormat(locate, { weekday: 'short' });
-  const weeksDaysNames = weekDays.map((weekDayKey) =>
-    // es un truco que necesita que se ejecute con esta fecha para que inicie con domingo
-    intlWeekDay.format(new Date(2023, 9, weekDayKey + 1))
-  );
-
-  const months = [...Array(12).keys()];
-  const intlMonths = new Intl.DateTimeFormat(locate, { month: 'long' });
-
-  const dateAllDay = new Date(2023, 7, 2);
-  const dateAllDayClear = new Date(
-    dateAllDay.getFullYear(),
-    dateAllDay.getMonth(),
-    dateAllDay.getDate()
-  );
-
-  const calendar = months.map((monthKey) => {
-    const monthName = intlMonths.format(new Date(year, monthKey));
-
-    const nextMonthIndex = monthKey + 1;
-    const daysOfMonth = new Date(year, nextMonthIndex, 0).getDate();
-
-    const startsOn = new Date(year, monthKey, 1).getDay();
-
-    return {
-      monthName,
-      daysOfMonth,
-      startsOn,
-      monthKey,
-    };
-  });
-
-  const turnClass = ['entra', 'sale', 'franco'];
-
-  const html = calendar
-    .map(({ monthName, daysOfMonth, startsOn, monthKey }) => {
-      const title = `<h1>${monthName} ${year} </h1>`;
-      const days = [...Array(daysOfMonth).keys()];
-      const firstDayAttribute = `class='first-day' style='--first-day-start: ${
-        startsOn + 1
-      }'`;
-
-      const renderedDays = days
-        .map((day, index) => {
-          day = day + 1;
-          const dateCalendar = new Date(year, monthKey, day);
-          const diff = dateCalendar - dateAllDayClear;
-          const diffDys = diff / (1000 * 60 * 60 * 24);
-          const moduleOf3 = Math.round(diffDys % 3);
-          const turn =
-            moduleOf3 < 0
-              ? moduleOf3 === -1
-                ? 2
-                : moduleOf3 === -2
-                ? 1
-                : moduleOf3
-              : moduleOf3;
-          const selected = turnClass[turn];
-          const isToday = new Date().toDateString() === dateCalendar.toDateString();
-          const dayAttribute = `class='${selected}'`;
-          const firstDayAttribute = `class='first-day ${selected}' style='--first-day-start: ${
-            startsOn + 1
-          }'`;
-          
-          return `<li ${index === 0 ? firstDayAttribute : dayAttribute}>
-            <span class='${isToday?'today':''}'>
-              ${day}
-            </span>
-          </li>`;
-        })
-        .join('');
-      const renderedWeekDays = weeksDaysNames
-        .map((weekDayName) => `<li class="day-name">${weekDayName}</li>`)
-        .join('');
-      return `<div class="month">${title} <ol> ${renderedWeekDays} ${renderedDays}</ol></div>`;
-    })
-    .join('');
-
-  document.querySelector('div').innerHTML = html;
-
-  const el = document.querySelector('div');
-  const scrollToMothCurrent = window.innerHeight * new Date().getMonth();
-  el.scrollTo({ top: scrollToMothCurrent, behavior: 'smooth' });
+// Constantes
+const DAYS_IN_WEEK = 7;
+const MONTHS_IN_YEAR = 12;
+const TURNS = {
+  ENTRADA: 'entra',
+  SALIDA: 'sale',
+  FRANCO: 'franco'
 };
 
-//let year = parseInt(yearLocalStorage);
-let year = new Date().getFullYear();
-const locate = navigator.language;
+class Calendar {
+  constructor(container) {
+    this.container = container;
+    this.year = new Date().getFullYear();
+    this.locale = navigator.language;
+    this.dateFormats = this.initializeDateFormats();
+    this.bindEvents();
+  }
 
-createCalendar({ locate, year });
+  initializeDateFormats() {
+    return {
+      weekday: new Intl.DateTimeFormat(this.locale, { weekday: 'short' }),
+      month: new Intl.DateTimeFormat(this.locale, { month: 'long' })
+    };
+  }
 
-document.getElementById('next').addEventListener('click', () => {
-  year = year + 1;
-  createCalendar({ locate, year });
-});
+  bindEvents() {
+    document.getElementById('next')?.addEventListener('click', () => {
+      this.year++;
+      this.render();
+    });
 
-document.getElementById('before').addEventListener('click', () => {
-  year = year - 1;
-  createCalendar({ locate, year });
-});
+    document.getElementById('before')?.addEventListener('click', () => {
+      this.year--;
+      this.render();
+    });
+  }
+
+  getWeekDayNames() {
+    return Array.from({ length: DAYS_IN_WEEK }, (_, i) => 
+      this.dateFormats.weekday.format(new Date(2023, 9, i + 1))
+    );
+  }
+
+  calculateTurn(date, referenceDate) {
+    const diffDays = Math.round((date - referenceDate) / (1000 * 60 * 60 * 24));
+    const moduleOf3 = diffDays % 3;
+    return moduleOf3 < 0 
+      ? moduleOf3 === -1 ? 2 : moduleOf3 === -2 ? 1 : 0 
+      : moduleOf3;
+  }
+
+  createMonthData(monthIndex) {
+    const monthDate = new Date(this.year, monthIndex, 1);
+    return {
+      monthName: this.dateFormats.month.format(monthDate),
+      daysInMonth: new Date(this.year, monthIndex + 1, 0).getDate(),
+      startsOn: monthDate.getDay(),
+      monthIndex
+    };
+  }
+
+  createDayElement(day, monthIndex, startsOn, isFirstDay, referenceDate) {
+    const date = new Date(this.year, monthIndex, day);
+    const turn = TURNS[Object.keys(TURNS)[this.calculateTurn(date, referenceDate)]];
+    const isToday = new Date().toDateString() === date.toDateString();
+    
+    const classes = [
+      turn,
+      isFirstDay ? 'first-day' : '',
+      isToday ? 'today' : ''
+    ].filter(Boolean);
+
+    const style = isFirstDay ? `style="--first-day-start: ${startsOn + 1}"` : '';
+    
+    return `
+      <li class="${classes.join(' ')}" ${style}>
+        <span>${day}</span>
+      </li>
+    `;
+  }
+
+  createMonthHTML(monthData, weekDayNames, referenceDate) {
+    const { monthName, daysInMonth, startsOn, monthIndex } = monthData;
+    
+    const daysHTML = Array.from({ length: daysInMonth }, (_, i) => 
+      this.createDayElement(i + 1, monthIndex, startsOn, i === 0, referenceDate)
+    ).join('');
+
+    const weekDaysHTML = weekDayNames
+      .map(name => `<li class="day-name">${name}</li>`)
+      .join('');
+
+    return `
+      <div class="month">
+        <h1>${monthName} ${this.year}</h1>
+        <ol>${weekDaysHTML}${daysHTML}</ol>
+      </div>
+    `;
+  }
+
+  scrollToCurrentMonth() {
+    const currentMonthOffset = window.innerHeight * new Date().getMonth();
+    this.container.scrollTo({ 
+      top: currentMonthOffset, 
+      behavior: 'smooth' 
+    });
+  }
+
+  render() {
+    const referenceDate = new Date(2023, 7, 2);
+    referenceDate.setHours(0, 0, 0, 0);
+
+    const weekDayNames = this.getWeekDayNames();
+    const monthsHTML = Array.from({ length: MONTHS_IN_YEAR }, (_, i) => 
+      this.createMonthHTML(this.createMonthData(i), weekDayNames, referenceDate)
+    ).join('');
+
+    this.container.innerHTML = monthsHTML;
+    this.scrollToCurrentMonth();
+  }
+}
+
+// Inicialización
+const calendarContainer = document.querySelector('div');
+if (calendarContainer) {
+  const calendar = new Calendar(calendarContainer);
+  calendar.render();
+}
